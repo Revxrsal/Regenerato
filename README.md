@@ -73,7 +73,7 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
     // Player has no clipboard
     sender.sendMessage(ChatColor.RED + "No WorldEdit clipboard found.");  
   }  
-  return false;  
+  return true;  
 }
 ```
 
@@ -99,7 +99,7 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
   } catch (NoSchematicException e) {  
     sender.sendMessage(ChatColor.RED + "No such schematic exists!"); // No schematic with the specified name exists
   }  
-  return false;  
+  return true;  
 }
 ```
 
