@@ -1,0 +1,5 @@
+name: Regenerato
+main: io.github.regenerato.Regenerato
+version: 1.0-SNAPSHOT
+depend:
+  - WorldEdit
