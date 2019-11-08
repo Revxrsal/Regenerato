@@ -102,3 +102,29 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
   return false;  
 }
 ```
+
+## Accessing Regenerato instance
+```java
+
+    /**
+     * Regenerato instance
+     */
+    private Regenerato regenerato;
+
+    /**
+     * Plugin startup logic
+     */
+    @Override
+    public void onEnable() {
+        regenerato = (Regenerato) Bukkit.getPluginManager().getPlugin("Regenerato");
+    }
+
+    /**
+     * Returns the Regenerato instance
+     *
+     * @return The Regenerato instance
+     */
+    public Regenerato getRegenerato() {
+        return regenerato;
+    }
+```
