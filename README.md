@@ -45,3 +45,57 @@ depend:
 
 # Download
 Download latest version [here](https://github.com/ReflxctionDev/Regenerato/releases/tag/1.0-SNAPSHOT).
+
+# Example usage
+## Save a schematic
+```java
+private TestPlugin plugin;  
+  
+public SaveCommand(TestPlugin plugin) {  
+  this.plugin = plugin;  
+}  
+  
+@Override  
+public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {  
+  if (!(sender instanceof Player)) {  
+  sender.sendMessage(ChatColor.RED + "You must be a player to use this command!");  
+  return true;  
+  }  
+  try {  
+  Player player = (Player) sender;  
+  SchematicProcessor processor = SchematicProcessor.newSchematicProcessor(plugin.getRegenerato().getWorldEdit(), sender.getName(), plugin.getDataFolder());  // Create a schematic file with the player name
+  processor.write(player); // Write into the schematic file
+  sender.sendMessage(ChatColor.GREEN + "Schematic saved successfully.");  
+  } catch (EmptyClipboardException e) {  
+  // Player has no clipboard
+  sender.sendMessage(ChatColor.RED + "No WorldEdit clipboard found.");  
+  }  
+  return false;  
+}
+```
+
+##  Pasting a schematic
+```java
+private TestPlugin plugin;  
+  
+public PasteCommand(TestPlugin plugin) {  
+  this.plugin = plugin;  
+}  
+  
+@Override  
+public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {  
+  if (!(sender instanceof Player)) {  
+  sender.sendMessage(ChatColor.RED + "You must be a player to use this command!");  
+  return true;  
+  }  
+  try {  
+  Player player = (Player) sender;  
+  SchematicProcessor processor = SchematicProcessor.newSchematicProcessor(plugin.getRegenerato().getWorldEdit(), sender.getName(), plugin.getDataFolder());  // Load the schematic that has the player name
+  processor.paste(player.getLocation());  // Paste the schematic wherever the player is standing
+  sender.sendMessage(ChatColor.GREEN + "Schematic has been pasted.");  
+  } catch (NoSchematicException e) {  
+  sender.sendMessage(ChatColor.RED + "No such schematic exists!"); // No schematic with the specified name exists
+  }  
+  return false;  
+}
+```
