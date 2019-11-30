@@ -50,6 +50,32 @@ depend:
 Download latest version [here](https://github.com/ReflxctionDev/Regenerato/releases/tag/1.0-SNAPSHOT).
 
 # Example usage
+## Accessing Regenerato instance
+```java
+
+    /**
+     * Regenerato instance
+     */
+    private Regenerato regenerato;
+
+    /**
+     * Plugin startup logic
+     */
+    @Override
+    public void onEnable() {
+        regenerato = (Regenerato) Bukkit.getPluginManager().getPlugin("Regenerato");
+    }
+
+    /**
+     * Returns the Regenerato instance
+     *
+     * @return The Regenerato instance
+     */
+    public Regenerato getRegenerato() {
+        return regenerato;
+    }
+```
+
 ## Save a schematic
 ```java
 private TestPlugin plugin;  
@@ -101,30 +127,4 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
   }  
   return true;  
 }
-```
-
-## Accessing Regenerato instance
-```java
-
-    /**
-     * Regenerato instance
-     */
-    private Regenerato regenerato;
-
-    /**
-     * Plugin startup logic
-     */
-    @Override
-    public void onEnable() {
-        regenerato = (Regenerato) Bukkit.getPluginManager().getPlugin("Regenerato");
-    }
-
-    /**
-     * Returns the Regenerato instance
-     *
-     * @return The Regenerato instance
-     */
-    public Regenerato getRegenerato() {
-        return regenerato;
-    }
 ```

@@ -6,8 +6,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Regenerato</name>
-    <url>https://dre2n.github.io</url>
-    <description>Library to modify some ItemStack traits that Bukkit doesn't support</description>
+    <description>A simple, fast, and cross-version-compatible arena regeneration library</description>
 
     <modules>
         <module>core</module>     <!--      Plugin core      -->
