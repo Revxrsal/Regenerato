@@ -16,6 +16,7 @@
 package io.github.regenerato.worldedit;
 
 import com.google.common.base.Preconditions;
+import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Bukkit;
@@ -88,7 +89,7 @@ public abstract class SchematicProcessor {
      *
      * @param location Location to paste in
      */
-    public abstract void paste(Location location) throws NoSchematicException;
+    public abstract EditSession paste(Location location) throws NoSchematicException;
 
     /**
      * Creates a new instance of the processor

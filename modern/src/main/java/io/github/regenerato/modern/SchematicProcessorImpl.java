@@ -58,8 +58,9 @@ public class SchematicProcessorImpl extends SchematicProcessor {
     }
 
     @Override
-    public void paste(Location location) throws NoSchematicException {
-        try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(location.getWorld()), -1)) {
+    public EditSession paste(Location location) throws NoSchematicException {
+        EditSession session = null;
+        try (EditSession editSession = session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(location.getWorld()), -1)) {
             Operation operation = new ClipboardHolder(load())
                     .createPaste(editSession)
                     .to(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
@@ -72,6 +73,7 @@ public class SchematicProcessorImpl extends SchematicProcessor {
         } catch (NullPointerException e) {
             throw new NoSchematicException(Files.getNameWithoutExtension(schematic.getName()));
         }
+        return session;
     }
 
     /**

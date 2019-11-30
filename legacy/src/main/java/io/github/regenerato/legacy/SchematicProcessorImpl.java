@@ -68,11 +68,11 @@ public class SchematicProcessorImpl extends SchematicProcessor {
     }
 
     @Override
-    public void paste(Location location) throws NoSchematicException {
+    public EditSession paste(Location location) throws NoSchematicException {
+        EditSession editSession = null;
         try {
-            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(location.getWorld()), -1);
+            editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(location.getWorld()), -1);
             editSession.enableQueue();
-
             SchematicFormat schematic = SchematicFormat.getFormat(this.schematic);
             CuboidClipboard cuboidClipboard = schematic.load(this.schematic);
 
@@ -83,6 +83,7 @@ public class SchematicProcessorImpl extends SchematicProcessor {
         } catch (NullPointerException e) {
             throw new NoSchematicException(Files.getNameWithoutExtension(schematic.getName()));
         }
+        return editSession;
     }
 
     @Override
