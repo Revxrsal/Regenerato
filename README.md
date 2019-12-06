@@ -3,7 +3,7 @@
 A simple library to simplify arena regeneration for minigame plugins.  
 
 # Prerequisites
-* WorldEdit
+* WorldEdit or FastAsyncWorldEdit
 
 # Add to your project
  0. Add `Regenerato` as a soft dependency or a hard dependency to your plugin through your `plugin.yml`.
