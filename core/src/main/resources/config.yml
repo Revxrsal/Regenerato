@@ -1,1 +1,9 @@
+# Whether should the developer mode be enabled or not
+#
+# This will basically add 2 commands:
+# /saveschem: Save the player's current schematic with their name in /plugins/Regenerato/
+# /pasteschem <schematic>: Pastes the specified schematic. Must be in /plugins/Regenerato/
+#
+# These commands are originally used for internal testing purposes only. You most likely do not
+# need them anyway.
 developer-mode: false
