@@ -1,5 +1,14 @@
 name: Regenerato
 main: io.github.regenerato.Regenerato
 version: 1.1-SNAPSHOT
-depend:
+softdepend:
   - WorldEdit
+  - FastAsyncWorldEdit
+commands:
+  pasteschem:
+    description: "Paste a schematic. Requires \"developer-mode\" option in config.yml"
+    permission: regenerato.paste
+
+  saveschem:
+    description: "Save a schematic. Requires \"developer-mode\" option in config.yml"
+    permission: regenerato.save

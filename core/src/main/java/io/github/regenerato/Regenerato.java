@@ -15,7 +15,13 @@
  */
 package io.github.regenerato;
 
+import com.google.common.base.MoreObjects;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import io.github.regenerato.commands.PasteCommand;
+import io.github.regenerato.commands.SaveCommand;
+import io.github.regenerato.worldedit.SchematicProcessor;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -30,9 +36,23 @@ public class Regenerato extends JavaPlugin {
      */
     @Override
     public void onEnable() {
-        getLogger().info("Regenerato has been successfully enabled!");
+        saveDefaultConfig();
+        Plugin we = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        Plugin fawe = Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit");
+        if (we == null && fawe == null) {
+            getLogger().severe("WorldEdit / FastAsyncWorldEdit not found. Disabling Regenerato");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        getLogger().info("Using " + SchematicProcessor.ADAPTER_NAME.get() + " for processing schematics");
         getDataFolder().mkdirs();
-        worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+
+        if (getConfig().getBoolean("developer-mode")) {
+            getCommand("pasteschem").setExecutor(new PasteCommand(this));
+            getCommand("saveschem").setExecutor(new SaveCommand(this));
+        }
+
+        worldEdit = (WorldEditPlugin) MoreObjects.firstNonNull(we, fawe);
     }
 
     /**
