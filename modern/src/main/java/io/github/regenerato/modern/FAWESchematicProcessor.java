@@ -53,7 +53,8 @@ public class FAWESchematicProcessor extends WESchematicProcessor {
             try {
                 session.set(super.paste(location));
             } catch (NoSchematicException e) {
-                UNSAFE.throwException(e);
+                if (UNSAFE != null)
+                    UNSAFE.throwException(e);
             }
         });
         return session.get();
