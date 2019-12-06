@@ -15,7 +15,6 @@
  */
 package io.github.regenerato.modern;
 
-import com.google.common.io.Files;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
@@ -37,12 +36,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SchematicProcessorImpl extends SchematicProcessor {
+public class WESchematicProcessor extends SchematicProcessor {
 
-    public SchematicProcessorImpl() {
+    public WESchematicProcessor() {
     }
 
-    private SchematicProcessorImpl(WorldEditPlugin plugin, String name, File directory) {
+    protected WESchematicProcessor(WorldEditPlugin plugin, String name, File directory) {
         super(plugin, name, directory);
     }
 
@@ -71,7 +70,7 @@ public class SchematicProcessorImpl extends SchematicProcessor {
         } catch (WorldEditException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-            throw new NoSchematicException(Files.getNameWithoutExtension(schematic.getName()));
+            throw new NoSchematicException(SchematicProcessor.getBaseName(schematic));
         }
         return session;
     }
@@ -81,7 +80,7 @@ public class SchematicProcessorImpl extends SchematicProcessor {
      *
      * @return The clipboard of the schematic
      */
-    private Clipboard load() {
+    Clipboard load() {
         ClipboardFormat format = ClipboardFormats.findByFile(schematic);
         try (ClipboardReader reader = format.getReader(new FileInputStream(schematic))) {
             return reader.read();
@@ -93,6 +92,6 @@ public class SchematicProcessorImpl extends SchematicProcessor {
 
     @Override
     protected SchematicProcessor newInstance(WorldEditPlugin plugin, String name, File directory) {
-        return new SchematicProcessorImpl(plugin, name, directory);
+        return new WESchematicProcessor(plugin, name, directory);
     }
 }

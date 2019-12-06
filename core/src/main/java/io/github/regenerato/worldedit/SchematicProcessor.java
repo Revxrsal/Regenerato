@@ -26,6 +26,9 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An abstract class for processing schematics across different WorldEdit versions
@@ -42,6 +45,11 @@ public abstract class SchematicProcessor {
      * schematics.
      */
     private static final SchematicProcessor FACTORY;
+
+    /**
+     * The name of the WorldEdit adapter
+     */
+    public static final AtomicReference<String> ADAPTER_NAME = new AtomicReference<>();
 
     /**
      * Represents the schematic file
@@ -112,21 +120,44 @@ public abstract class SchematicProcessor {
         return FACTORY.newInstance(plugin, name, directory);
     }
 
+    /**
+     * Returns the file name without its
+     * <a href="http://en.wikipedia.org/wiki/Filename_extension">file extension</a> or path. This is
+     * similar to the {@code basename} unix command. The result does not include the '{@code .}'.
+     *
+     * @param file The name of the file to trim the extension from. This can be either a fully
+     *             qualified file name (including a path) or just a file name.
+     * @return The file name without its path or extension.
+     * @since 14.0
+     */
+    public static String getBaseName(File file) {
+        checkNotNull(file);
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+    }
+
     static {
         SchematicProcessor factory;
         if (PROTOCOL >= 13) try {
-            factory = (SchematicProcessor) Class.forName("io.github.regenerato.modern.SchematicProcessorImpl").newInstance();
+            if (Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null)
+                factory = (SchematicProcessor) Class.forName("io.github.regenerato.modern.FAWESchematicProcessor").newInstance();
+            else
+                factory = (SchematicProcessor) Class.forName("io.github.regenerato.modern.WESchematicProcessor").newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
             factory = null;
         }
         else try {
-            factory = (SchematicProcessor) Class.forName("io.github.regenerato.legacy.SchematicProcessorImpl").newInstance();
+            factory = (SchematicProcessor) Class.forName("io.github.regenerato.legacy.WESchematicProcessor").newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
             factory = null;
         }
         FACTORY = factory;
+        if (FACTORY != null) {
+            ADAPTER_NAME.set(FACTORY.getClass().getSimpleName());
+        }
     }
 
     /**

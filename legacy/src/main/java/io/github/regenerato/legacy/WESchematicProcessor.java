@@ -37,9 +37,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SchematicProcessorImpl extends SchematicProcessor {
+public class WESchematicProcessor extends SchematicProcessor {
 
-    public SchematicProcessorImpl() {
+    public WESchematicProcessor() {
     }
 
     /**
@@ -48,7 +48,7 @@ public class SchematicProcessorImpl extends SchematicProcessor {
      * @param plugin Plugin instance
      * @param name   Name of the schematic
      */
-    private SchematicProcessorImpl(WorldEditPlugin plugin, String name, File directory) {
+    private WESchematicProcessor(WorldEditPlugin plugin, String name, File directory) {
         super(plugin, name, directory);
     }
 
@@ -81,13 +81,13 @@ public class SchematicProcessorImpl extends SchematicProcessor {
         } catch (DataException | MaxChangedBlocksException | IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-            throw new NoSchematicException(Files.getNameWithoutExtension(schematic.getName()));
+            throw new NoSchematicException(SchematicProcessor.getBaseName(schematic));
         }
         return editSession;
     }
 
     @Override
     public SchematicProcessor newInstance(WorldEditPlugin plugin, String name, File directory) {
-        return new SchematicProcessorImpl(plugin, name, directory);
+        return new WESchematicProcessor(plugin, name, directory);
     }
 }
