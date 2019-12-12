@@ -15,7 +15,6 @@
  */
 package io.github.regenerato;
 
-import com.google.common.base.MoreObjects;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import io.github.regenerato.commands.PasteCommand;
 import io.github.regenerato.commands.SaveCommand;
@@ -23,6 +22,8 @@ import io.github.regenerato.worldedit.SchematicProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Main class
@@ -52,7 +53,7 @@ public class Regenerato extends JavaPlugin {
             getCommand("saveschem").setExecutor(new SaveCommand(this));
         }
 
-        worldEdit = (WorldEditPlugin) MoreObjects.firstNonNull(we, fawe);
+        worldEdit = (WorldEditPlugin) (we != null ? we : checkNotNull(fawe));
     }
 
     /**
