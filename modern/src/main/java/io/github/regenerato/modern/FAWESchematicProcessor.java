@@ -16,7 +16,9 @@
 package io.github.regenerato.modern;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.session.ClipboardHolder;
 import io.github.regenerato.worldedit.NoSchematicException;
 import io.github.regenerato.worldedit.SchematicProcessor;
 import org.bukkit.Bukkit;
@@ -25,7 +27,7 @@ import sun.misc.Unsafe;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Schematic processor for FastAsyncWorldEdit
@@ -41,23 +43,29 @@ public class FAWESchematicProcessor extends WESchematicProcessor {
         super(plugin, name, directory);
     }
 
-    /**
-     * Pastes the specified clipboard at the specified location
-     *
-     * @param location Location to paste in
-     */
     @Override
-    public EditSession paste(Location location) throws NoSchematicException {
-        AtomicReference<EditSession> session = new AtomicReference<>();
+    public void write(ClipboardHolder selection) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                session.set(super.paste(location));
-            } catch (NoSchematicException e) {
-                if (UNSAFE != null)
-                    UNSAFE.throwException(e);
+                super.write(selection);
+            } catch (EmptyClipboardException e) {
+                throw sneakyThrow(e);
             }
         });
-        return session.get();
+    }
+
+    @Override
+    public CompletableFuture<EditSession> paste(Location location) {
+        CompletableFuture<EditSession> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                super.paste(location);
+                future.complete(null);
+            } catch (NoSchematicException e) {
+                throw sneakyThrow(e);
+            }
+        });
+        return future;
     }
 
     /**

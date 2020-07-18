@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class WESchematicProcessor extends SchematicProcessor {
 
@@ -57,22 +58,32 @@ public class WESchematicProcessor extends SchematicProcessor {
     }
 
     @Override
-    public EditSession paste(Location location) throws NoSchematicException {
-        EditSession session = null;
-        try (EditSession editSession = session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(location.getWorld()), -1)) {
+    public void write(ClipboardHolder selection) throws EmptyClipboardException {
+        try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(schematic))) {
+            writer.write(selection.getClipboard());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public CompletableFuture<EditSession> paste(Location location) throws NoSchematicException {
+        CompletableFuture<EditSession> future = new CompletableFuture<>();
+        try (EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(location.getWorld()), -1)) {
             Operation operation = new ClipboardHolder(load())
-                    .createPaste(editSession)
+                    .createPaste(session)
                     .to(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
                     .ignoreAirBlocks(false)
                     .build();
             Operations.complete(operation);
-            editSession.flushSession();
+            session.flushSession();
+            future.complete(session);
         } catch (WorldEditException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
             throw new NoSchematicException(SchematicProcessor.getBaseName(schematic));
         }
-        return session;
+        return future;
     }
 
     /**

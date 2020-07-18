@@ -26,7 +26,7 @@ depend:
 	<dependency>
 	  <groupId>com.github.ReflxctionDev</groupId>
 	    <artifactId>Regenerato</artifactId>
-	    <version>1.3.1-SNAPSHOT</version>
+	    <version>1.4-SNAPSHOT</version>
 	    <scope>provided</scope>
 	</dependency>
 ```
@@ -43,11 +43,11 @@ depend:
  ```
 2. Add this to your `dependencies` closure:
 ```gradle
-    compile 'com.github.ReflxctionDev:Regenerato:1.3.1-SNAPSHOT'
+    compile 'com.github.ReflxctionDev:Regenerato:1.4-SNAPSHOT'
 ```
 
 # Download
-Download latest version [here](https://github.com/ReflxctionDev/Regenerato/releases/tag/1.3.1-SNAPSHOT).
+Download latest version [here](https://github.com/ReflxctionDev/Regenerato/releases/tag/1.4-SNAPSHOT).
 
 # Example usage
 ## Accessing Regenerato instance

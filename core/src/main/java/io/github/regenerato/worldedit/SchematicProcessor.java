@@ -18,7 +18,10 @@ package io.github.regenerato.worldedit;
 import com.google.common.base.Preconditions;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
+import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import io.github.regenerato.Regenerato;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -26,6 +29,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -85,19 +89,29 @@ public abstract class SchematicProcessor {
         }
     }
 
+    public void write(Player player) throws EmptyClipboardException {
+        com.sk89q.worldedit.entity.Player localPlayer = plugin.wrapPlayer(player);
+        LocalSession localSession = plugin.getWorldEdit().getSessionManager().get(localPlayer);
+        ClipboardHolder selection = localSession.getClipboard();
+        write(selection);
+    }
+
     /**
      * Writes the specified clipboard data to the schematic
      *
      * @param player Player to save clipboard for
      */
-    public abstract void write(Player player) throws EmptyClipboardException;
+    public abstract void write(ClipboardHolder player) throws EmptyClipboardException;
 
     /**
      * Pastes the specified clipboard at the specified location
      *
      * @param location Location to paste in
+     * @return A completable future for tracking the pasting progress of this schematic.
+     * <p>
+     * NOTE: This does not mean the process is asynchronous! Check the adapter name to know this.
      */
-    public abstract EditSession paste(Location location) throws NoSchematicException;
+    public abstract CompletableFuture<EditSession> paste(Location location) throws NoSchematicException;
 
     /**
      * Creates a new instance of the processor
@@ -139,24 +153,22 @@ public abstract class SchematicProcessor {
 
     static {
         SchematicProcessor factory;
-        if (PROTOCOL >= 13) try {
+        String classifier = PROTOCOL >= 13 ? "modern" : "legacy";
+        try {
             if (Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null)
-                factory = (SchematicProcessor) Class.forName("io.github.regenerato.modern.FAWESchematicProcessor").newInstance();
+                factory = (SchematicProcessor) Class.forName("io.github.regenerato." + classifier + ".FAWESchematicProcessor").newInstance();
             else
-                factory = (SchematicProcessor) Class.forName("io.github.regenerato.modern.WESchematicProcessor").newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
+                factory = (SchematicProcessor) Class.forName("io.github.regenerato." + classifier + ".WESchematicProcessor").newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             factory = null;
-        }
-        else try {
-            factory = (SchematicProcessor) Class.forName("io.github.regenerato.legacy.WESchematicProcessor").newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            Regenerato.getRegenerato().getLogger().severe("Cannot initiate instance of SchematicProcessor.");
             e.printStackTrace();
-            factory = null;
         }
         FACTORY = factory;
         if (FACTORY != null) {
             ADAPTER_NAME.set(FACTORY.getClass().getSimpleName());
+        } else {
+            throw new IllegalStateException("Cannot create factory instance of SchematicProcessor. Check last error for details.");
         }
     }
 
@@ -169,5 +181,15 @@ public abstract class SchematicProcessor {
     private static String getVersion(Server server) {
         final String packageName = server.getClass().getPackage().getName();
         return packageName.substring(packageName.lastIndexOf('.') + 1);
+    }
+
+    @SuppressWarnings("RedundantTypeArguments")
+    protected static RuntimeException sneakyThrow(Throwable t) {
+        if (t == null) throw new NullPointerException("t");
+        return SchematicProcessor.<RuntimeException>sneakyThrow0(t);
+    }
+
+    private static <T extends Throwable> T sneakyThrow0(Throwable t) throws T {
+        throw (T) t;
     }
 }

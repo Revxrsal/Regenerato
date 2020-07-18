@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 
 public class SaveCommand implements CommandExecutor {
 
-    private Regenerato plugin;
+    private final Regenerato plugin;
 
     public SaveCommand(Regenerato plugin) {
         this.plugin = plugin;

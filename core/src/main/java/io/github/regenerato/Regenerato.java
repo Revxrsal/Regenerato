@@ -26,10 +26,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Main class
+ * Regenerato: A WorldEdit cross-version, cross-fork compatible high-level API for saving, loading and
+ * writing schematics
  */
 public class Regenerato extends JavaPlugin {
 
+    /**
+     * The plugin's constant instance
+     */
+    private static Regenerato regenerato;
+
+    /**
+     * The WorldEdit plugin
+     */
     private WorldEditPlugin worldEdit;
 
     /**
@@ -37,6 +46,7 @@ public class Regenerato extends JavaPlugin {
      */
     @Override
     public void onEnable() {
+        regenerato = this;
         saveDefaultConfig();
         Plugin we = Bukkit.getPluginManager().getPlugin("WorldEdit");
         Plugin fawe = Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit");
@@ -62,8 +72,23 @@ public class Regenerato extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Regenerato has been successfully disabled!");
+        regenerato = null;
     }
 
+    /**
+     * Returns the constant instance of the {@link Regenerato} plugin
+     *
+     * @return The instance of Regenerato
+     */
+    public static Regenerato getRegenerato() {
+        return regenerato;
+    }
+
+    /**
+     * Returns the captured WorldEdit plugin instance
+     *
+     * @return The WorldEdit instance
+     */
     public WorldEditPlugin getWorldEdit() {
         return worldEdit;
     }

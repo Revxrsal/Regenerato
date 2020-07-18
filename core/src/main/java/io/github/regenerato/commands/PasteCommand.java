@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 
 public class PasteCommand implements CommandExecutor {
 
-    private Regenerato plugin;
+    private final Regenerato plugin;
 
     public PasteCommand(Regenerato plugin) {
         this.plugin = plugin;
@@ -41,8 +41,10 @@ public class PasteCommand implements CommandExecutor {
         try {
             Player player = (Player) sender;
             SchematicProcessor processor = SchematicProcessor.newSchematicProcessor(plugin.getWorldEdit(), sender.getName(), plugin.getDataFolder());  // Load the schematic that has the player name
-            processor.paste(player.getLocation());  // Paste the schematic wherever the player is standing
-            sender.sendMessage(ChatColor.GREEN + "Schematic has been pasted.");
+
+            // Paste the schematic wherever the player is standing
+            // #paste() returns a CompletableFuture
+            processor.paste(player.getLocation()).thenRun(() -> sender.sendMessage(ChatColor.GREEN + "Schematic has been pasted."));
         } catch (NoSchematicException e) {
             sender.sendMessage(ChatColor.RED + "No such schematic exists!"); // No schematic with the specified name exists
         }

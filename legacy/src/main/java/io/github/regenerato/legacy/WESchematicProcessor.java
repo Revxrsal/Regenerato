@@ -15,7 +15,6 @@
  */
 package io.github.regenerato.legacy;
 
-import com.google.common.io.Files;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
@@ -30,12 +29,12 @@ import com.sk89q.worldedit.world.World;
 import io.github.regenerato.worldedit.NoSchematicException;
 import io.github.regenerato.worldedit.SchematicProcessor;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class WESchematicProcessor extends SchematicProcessor {
 
@@ -48,16 +47,13 @@ public class WESchematicProcessor extends SchematicProcessor {
      * @param plugin Plugin instance
      * @param name   Name of the schematic
      */
-    private WESchematicProcessor(WorldEditPlugin plugin, String name, File directory) {
+    protected WESchematicProcessor(WorldEditPlugin plugin, String name, File directory) {
         super(plugin, name, directory);
     }
 
     @Override
-    public void write(Player player) throws EmptyClipboardException {
+    public void write(ClipboardHolder selection) throws EmptyClipboardException {
         try (Closer closer = Closer.create()) {
-            com.sk89q.worldedit.entity.Player localPlayer = plugin.wrapPlayer(player);
-            LocalSession localSession = plugin.getWorldEdit().getSessionManager().get(localPlayer);
-            ClipboardHolder selection = localSession.getClipboard();
             FileOutputStream fos = closer.register(new FileOutputStream(schematic));
             BufferedOutputStream bos = closer.register(new BufferedOutputStream(fos));
             ClipboardWriter writer = closer.register(ClipboardFormat.SCHEMATIC.getWriter(bos));
@@ -68,7 +64,8 @@ public class WESchematicProcessor extends SchematicProcessor {
     }
 
     @Override
-    public EditSession paste(Location location) throws NoSchematicException {
+    public CompletableFuture<EditSession> paste(Location location) throws NoSchematicException {
+        CompletableFuture<EditSession> future = new CompletableFuture<>();
         EditSession editSession = null;
         try {
             editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(location.getWorld()), -1);
@@ -78,12 +75,15 @@ public class WESchematicProcessor extends SchematicProcessor {
 
             cuboidClipboard.paste(editSession, BukkitUtil.toVector(location), false);
             editSession.flushQueue();
+            future.complete(editSession);
         } catch (DataException | MaxChangedBlocksException | IOException e) {
             e.printStackTrace();
+            future.obtrudeException(e);
         } catch (NullPointerException e) {
             throw new NoSchematicException(SchematicProcessor.getBaseName(schematic));
         }
-        return editSession;
+
+        return future;
     }
 
     @Override
